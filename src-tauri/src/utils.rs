@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::io::{stdin, stdout, Write};
 
-use midir::{MidiInput, Ignore};
+use midir::{Ignore, MidiInput};
 
 pub fn listen_inputs() -> Result<(), Box<dyn Error>> {
     let mut input = String::new();

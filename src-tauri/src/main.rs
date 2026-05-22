@@ -4,10 +4,10 @@
 mod utils;
 
 fn main() {
-    match utils::listen_inputs() {
-        Ok(_) => (),
-        Err(err) => println!("Error: {}", err),
-    }
+    // match utils::listen_inputs() {
+    //     Ok(_) => (),
+    //     Err(err) => println!("Error: {}", err),
+    // }
 
-    // sound_mission_lib::run();
+    sound_mission_lib::run();
 }

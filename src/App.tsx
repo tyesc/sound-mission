@@ -4,15 +4,23 @@ import { invoke } from '@tauri-apps/api/core';
 import reactLogo from './assets/react.svg';
 import './App.css';
 
-function App () {
-  const [greetMsg, setGreetMsg] = useState('');
-  const [name, setName] = useState('');
+type Input = {
+  name: string;
+  id: string;
+};
 
-  async function greet () {
-    // Learn more about Tauri commands at
-    // https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke('greet', { name }));
-  }
+function App () {
+  const [devices, setDevices] = useState<Input[]>([]);
+
+  const list = async () => {
+    try {
+      const d = await invoke<Input[]>('list_devices');
+
+      setDevices(d);
+    } catch (e) {
+      console.error('TAURI ERROR:', e);
+    }
+  };
 
   return (
     <main className="container">
@@ -31,21 +39,13 @@ function App () {
       </div>
       <p>Click on the Tauri, Vite, and React logos to learn more.</p>
 
-      <form
-        className="row"
-        onSubmit={e => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={e => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
+      <button onClick={list}>list devices</button>
+
+      <ol>
+        { devices.map((item, i) => (
+          <li key={i}>{ item.name }</li>
+        )) }
+      </ol>
     </main>
   );
 }
