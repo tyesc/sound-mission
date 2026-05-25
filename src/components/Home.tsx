@@ -1,6 +1,7 @@
 import { useEffect, useReducer } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { Box, Flex, Select } from '@radix-ui/themes';
+import { listen } from '@tauri-apps/api/event';
+import { Select } from '@radix-ui/themes';
 import { mockState } from '@junipero/react';
 
 type Input = {
@@ -18,6 +19,7 @@ export interface HomeState {
   selectedDevice?: string;
   outputs: Output[],
   selectedOutput?: string,
+  keylog: string[],
 }
 
 const Home = () => {
@@ -26,6 +28,7 @@ const Home = () => {
     selectedDevice: undefined,
     outputs: [],
     selectedOutput: undefined,
+    keylog: [],
   });
 
   const listMidi = async () => {
@@ -51,6 +54,21 @@ const Home = () => {
   useEffect(() => {
     listMidi();
     listOutput();
+  }, []);
+
+  useEffect(() => {
+    const l = listen<string>('on_key_pressed', e => {
+      dispatch(s => {
+        return {
+          ...s,
+          keylog: s.keylog.concat([e.payload]),
+        };
+      });
+    });
+
+    return () => {
+      l.then(f => f());
+    };
   }, []);
 
   const onSelectDevice = async (deviceId: string) => {
@@ -85,6 +103,14 @@ const Home = () => {
           )) }
         </Select.Content>
       </Select.Root>
+
+      <div className="max-h-28 overflow-auto">
+        <ul>
+          {state.keylog.map((e, i) => (
+            <li key={i}>{ e }</li>
+          )) }
+        </ul>
+      </div>
 
       <div className="flex gap-0.5 justify-center relative w-full h-full mt-3">
         { [...Array(15)].map((_, i) => (

@@ -1,6 +1,5 @@
 use serde::Serialize;
 use midir::{Ignore, MidiInput};
-use rodio::{DeviceTrait, cpal::{self, traits::HostTrait}};
 
 #[path ="../utils.rs"]
 mod utils;
