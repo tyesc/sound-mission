@@ -42,8 +42,8 @@ pub fn listen_inputs(app: AppHandle) -> Result<(), String> {
             in_port,
             "midir-read-input",
             move |stamp, message, _| {
-                let msg = format!("{}: {:?} (len = {})", stamp, message, message.len()).to_string();
-                println!("{}", msg);
+                println!("{}: {:?} (len = {})", stamp, message, message.len());
+                let msg = format!("{:?}", message).to_string();
                 app.emit("on_key_pressed", msg).unwrap();
             },
             (),
