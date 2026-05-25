@@ -1,7 +1,7 @@
-use serde::Serialize;
 use midir::{Ignore, MidiInput};
+use serde::Serialize;
 
-#[path ="../utils.rs"]
+#[path = "../utils.rs"]
 mod utils;
 
 #[derive(Serialize, Clone, Debug)]

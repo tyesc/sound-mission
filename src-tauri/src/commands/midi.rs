@@ -37,16 +37,18 @@ pub fn listen_inputs(app: AppHandle) -> Result<(), String> {
     println!("in_port_name: {}", in_port_name);
 
     // _conn_in needs to be a named parameter, because it needs to be kept alive until the end of the scope
-    let _conn_in = midi_in.connect(
-        in_port,
-        "midir-read-input",
-        move |stamp, message, _| {
-            let msg = format!("{}: {:?} (len = {})", stamp, message, message.len()).to_string();
-            println!("{}", msg);
-            app.emit("on_key_pressed", msg).unwrap();
-        },
-        (),
-    ).map_err(|err| err.to_string())?; // TODO: clean all this kind of error handling
+    let _conn_in = midi_in
+        .connect(
+            in_port,
+            "midir-read-input",
+            move |stamp, message, _| {
+                let msg = format!("{}: {:?} (len = {})", stamp, message, message.len()).to_string();
+                println!("{}", msg);
+                app.emit("on_key_pressed", msg).unwrap();
+            },
+            (),
+        )
+        .map_err(|err| err.to_string())?; // TODO: clean all this kind of error handling
 
     loop {
         std::thread::sleep(std::time::Duration::from_secs(1));

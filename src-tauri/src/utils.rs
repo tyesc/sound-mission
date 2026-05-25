@@ -4,7 +4,6 @@
 // use midir::{Ignore, MidiInput};
 // use rodio::{DeviceTrait, cpal::{self, traits::HostTrait}};
 
-
 // pub fn output_has_config(device: &cpal::Device) -> bool {
 //     let has_configs = device.supported_output_configs()
 //         .map(|mut c| c.next().is_some())
