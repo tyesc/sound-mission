@@ -93,9 +93,11 @@ const Home = () => {
     e.preventDefault();
 
     dispatch(s => {
+      const exists = s.keyMap.findIndex(e => e.index === kmap.index);
+
       return {
         ...s,
-        keyMap: s.keyMap.concat(kmap),
+        keyMap: s.keyMap.toSpliced(exists, exists > -1 ? 1 : 0, kmap),
         dialogOpened: false,
       };
     });
