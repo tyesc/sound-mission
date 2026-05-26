@@ -1,14 +1,14 @@
 export type Key = {
-  id: string;
-}
+  id: number;
+};
 
 export type Sound = {
-  name?: string;
+  name: string;
   path: string;
-}
+};
 
 export type KeyMap = {
-  index?: number;
+  index: number;
   key: Key;
   sound: Sound;
-}
+};

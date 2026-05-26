@@ -2,6 +2,8 @@
 mod devices;
 #[path = "commands/midi.rs"]
 mod midi;
+#[path = "commands/config.rs"]
+mod config;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -23,6 +25,8 @@ pub fn run() {
             devices::on_device_selected,
             devices::list_devices,
             devices::list_outputs_audio,
+            config::save_keymap,
+            config::get_stored_value,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

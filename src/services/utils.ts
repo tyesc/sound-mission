@@ -1,6 +1,6 @@
-export const formatKeyId = (str: string): string => {
-  // cc = Control Change
-  const [cc, key, velocity]: Array<string> = JSON.parse(str);
+export const formatKeyId = (str: string): number => {
+  // cc = Control Change, key, velocity
+  const [_, key, __]: Array<string> = JSON.parse(str);
 
-  return key;
+  return Number(key);
 };

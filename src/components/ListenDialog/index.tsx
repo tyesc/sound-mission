@@ -10,7 +10,7 @@ import { formatKeyId } from '../../services/utils';
 
 export interface ListenDialogProps {
   open: boolean;
-  keyIndex?: number;
+  keyIndex: number;
   onOpenChange: (open: boolean) => void;
   onSave: (e: SubmitEvent, kmap: KeyMap) => void;
 };
@@ -42,7 +42,7 @@ const ListenDialog = ({
           ...s,
           keyMap: {
             ...s.keyMap,
-            index: keyIndex,
+            index: Number(keyIndex),
             key: { id: formatKeyId(e.payload) },
           },
           isListening: false,
@@ -72,7 +72,7 @@ const ListenDialog = ({
               Select a sound
             </Text>
 
-            <IconButton radius="full">
+            <IconButton radius="full" type="button">
               <PlusIcon />
             </IconButton>
           </label>

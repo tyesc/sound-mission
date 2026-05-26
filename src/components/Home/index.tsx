@@ -1,10 +1,11 @@
 import { SubmitEvent, useEffect, useReducer } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { Select } from '@radix-ui/themes';
+import { Select, Button } from '@radix-ui/themes';
 import { mockState } from '@junipero/react';
 
 import ListenDialog from '../ListenDialog';
 import { KeyMap } from '../../types';
+import { useApp } from '../../services/hooks';
 
 type Input = {
   name: string;
@@ -22,19 +23,20 @@ export interface HomeState {
   outputs: Output[];
   selectedOutput?: string;
   dialogOpened: boolean
-  keyIndex?: number;
+  keyIndex: number;
   keyMap: KeyMap[];
 }
 
 const Home = () => {
+  const { keyMap } = useApp();
   const [state, dispatch] = useReducer(mockState<HomeState>, {
     devices: [],
     selectedDevice: undefined,
     outputs: [],
     selectedOutput: undefined,
     dialogOpened: false,
-    keyIndex: undefined,
-    keyMap: [],
+    keyIndex: NaN,
+    keyMap: keyMap || [],
   });
 
   const listMidi = async () => {
@@ -61,6 +63,10 @@ const Home = () => {
     listMidi();
     listOutput();
   }, []);
+
+  useEffect(() => {
+    dispatch({ keyMap });
+  }, [keyMap]);
 
   const onSelectDevice = async (deviceId: string) => {
     dispatch({ selectedDevice: deviceId });
@@ -95,9 +101,22 @@ const Home = () => {
     });
   };
 
+  const onSaveConfig = async (e: SubmitEvent) => {
+    e.preventDefault();
+
+    try {
+      await invoke('save_keymap', { kmap: state.keyMap });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <>
-      <div className="flex flex-col gap-1 items-center w-full h-full!">
+      <form
+        onSubmit={onSaveConfig}
+        className="flex flex-col gap-1 items-center w-full h-full! p-4"
+      >
         <div className="flex gap-1 justify-between w-full h-full!">
 
           <Select.Root onValueChange={onSelectDevice}>
@@ -140,7 +159,17 @@ const Home = () => {
             </div>
           )) }
         </div>
-      </div>
+
+        <div
+          className="flex gap-0.5 justify-end w-full align-bottom"
+        >
+          <Button variant="soft" color="gray">
+            Cancel
+          </Button>
+
+          <Button type="submit">Save</Button>
+        </div>
+      </form>
 
       {state.dialogOpened && (
         <ListenDialog
