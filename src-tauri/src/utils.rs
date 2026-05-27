@@ -1,3 +1,19 @@
+use std::error::Error;
+
+
+pub fn play_through_output(path: &str) -> Result<(), Box<dyn Error>> {
+    let stream_handle = rodio::DeviceSinkBuilder::open_default_sink()?;
+    let player = rodio::Player::connect_new(stream_handle.mixer());
+
+    let file = std::fs::File::open(path)?;
+    player.append(rodio::Decoder::try_from(file)?);
+
+    player.sleep_until_end();
+
+    Ok(())
+}
+
+
 // use std::error::Error;
 // use std::io::{stdin, stdout, Write};
 
