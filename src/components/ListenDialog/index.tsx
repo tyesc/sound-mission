@@ -12,6 +12,7 @@ import FileButton from '../FileButton';
 export interface ListenDialogProps {
   open: boolean;
   keyIndex: number;
+  keyMap: KeyMap;
   onOpenChange: (open: boolean) => void;
   onSave: (e: SubmitEvent, kmap: KeyMap) => void;
 };
@@ -24,11 +25,12 @@ export interface ListenDialogStates {
 const ListenDialog = ({
   open,
   keyIndex,
+  keyMap,
   onOpenChange,
   onSave,
 }: ListenDialogProps) => {
   const [state, dispatch] = useReducer(mockState<ListenDialogStates>, {
-    keyMap: EMPTY_KEYMAP,
+    keyMap: keyMap || EMPTY_KEYMAP,
     isListening: true,
   });
 

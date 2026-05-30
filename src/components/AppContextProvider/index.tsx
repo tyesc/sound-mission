@@ -30,10 +30,20 @@ const AppContextProvider = ({ children }: AppContextProps) => {
     getStoredKeyMap();
   }, []);
 
+  const setKeyMap = useCallback((keyMap?: KeyMap[]) => {
+    if (!keyMap) {
+      return;
+    }
+
+    dispatch({ keyMap });
+  }, []);
+
   const getValue = useCallback(() => ({
     keyMap: state.keyMap,
+    setKeyMap,
   }), [
     state.keyMap,
+    setKeyMap,
   ]);
 
   return (

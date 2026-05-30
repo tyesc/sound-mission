@@ -24,11 +24,10 @@ export interface HomeState {
   selectedOutput?: string;
   dialogOpened: boolean
   keyIndex: number;
-  keyMap: KeyMap[];
 }
 
 const Home = () => {
-  const { keyMap } = useApp();
+  const { keyMap, setKeyMap } = useApp();
   const [state, dispatch] = useReducer(mockState<HomeState>, {
     devices: [],
     selectedDevice: undefined,
@@ -36,7 +35,6 @@ const Home = () => {
     selectedOutput: undefined,
     dialogOpened: false,
     keyIndex: NaN,
-    keyMap: keyMap || [],
   });
 
   const listMidi = async () => {
@@ -64,10 +62,6 @@ const Home = () => {
     listOutput();
   }, []);
 
-  useEffect(() => {
-    dispatch({ keyMap });
-  }, [keyMap]);
-
   const onSelectDevice = async (deviceIndex: string) => {
     const index = Number(deviceIndex);
     dispatch({ selectedDevice: index });
@@ -93,22 +87,32 @@ const Home = () => {
   const onSaveKey = (e: SubmitEvent, kmap: KeyMap) => {
     e.preventDefault();
 
-    dispatch(s => {
-      const exists = s.keyMap.findIndex(e => e.mapIndex === kmap.mapIndex);
+    const exists = keyMap?.findIndex(e => e.mapIndex === kmap.mapIndex);
 
-      return {
-        ...s,
-        keyMap: s.keyMap.toSpliced(exists, exists > -1 ? 1 : 0, kmap),
-        dialogOpened: false,
-      };
-    });
+    if (!exists) {
+      return;
+    }
+
+    const newMap = keyMap?.toSpliced(exists, exists > -1 ? 1 : 0, kmap);
+    setKeyMap?.(newMap);
+
+    dispatch({ dialogOpened: false });
   };
 
   const onSaveConfig = async (e: SubmitEvent) => {
     e.preventDefault();
 
     try {
-      await invoke('save_keymap', { kmap: state.keyMap });
+      await invoke('save_keymap', { kmap: keyMap });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const onClearMap = async () => {
+    try {
+      await invoke('save_keymap', { kmap: [] });
+      setKeyMap?.([]);
     } catch (e) {
       console.error(e);
     }
@@ -157,7 +161,7 @@ const Home = () => {
               onClick={onOpenDialog.bind(null, i)}
             >
               <label>
-                { state.keyMap.find(e => e.mapIndex === i)?.key }
+                { keyMap?.find(e => e.mapIndex === i)?.key }
               </label>
             </div>
           )) }
@@ -166,8 +170,13 @@ const Home = () => {
         <div
           className="flex gap-0.5 justify-end w-full align-bottom"
         >
-          <Button variant="soft" color="gray" type="button">
-            Cancel
+          <Button
+            variant="soft"
+            color="gray"
+            type="button"
+            onClick={onClearMap}
+          >
+            Clear
           </Button>
 
           <Button type="submit">Save</Button>
