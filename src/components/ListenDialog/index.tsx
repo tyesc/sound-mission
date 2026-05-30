@@ -5,7 +5,7 @@ import { mockState } from '@junipero/react';
 import { listen } from '@tauri-apps/api/event';
 
 import { EMPTY_KEYMAP } from '../../services/commons';
-import { KeyMap } from '../../types';
+import { KeyMap, MidiBytes } from '../../types';
 import { formatKeyId } from '../../services/utils';
 
 export interface ListenDialogProps {
@@ -36,14 +36,14 @@ const ListenDialog = ({
       return;
     }
 
-    const l = listen<string>('on_key_pressed', e => {
+    const l = listen<MidiBytes>('on_key_pressed', e => {
       dispatch(s => {
         return {
           ...s,
           keyMap: {
             ...s.keyMap,
-            index: Number(keyIndex),
-            key: { id: formatKeyId(e.payload) },
+            mapIndex: Number(keyIndex),
+            key: formatKeyId(e.payload),
           },
           isListening: false,
         };

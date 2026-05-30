@@ -94,7 +94,7 @@ const Home = () => {
     e.preventDefault();
 
     dispatch(s => {
-      const exists = s.keyMap.findIndex(e => e.index === kmap.index);
+      const exists = s.keyMap.findIndex(e => e.mapIndex === kmap.mapIndex);
 
       return {
         ...s,
@@ -157,7 +157,7 @@ const Home = () => {
               onClick={onOpenDialog.bind(null, i)}
             >
               <label>
-                { state.keyMap.find(e => e.index === i)?.key.id }
+                { state.keyMap.find(e => e.mapIndex === i)?.key }
               </label>
             </div>
           )) }
@@ -166,7 +166,7 @@ const Home = () => {
         <div
           className="flex gap-0.5 justify-end w-full align-bottom"
         >
-          <Button variant="soft" color="gray">
+          <Button variant="soft" color="gray" type="button">
             Cancel
           </Button>
 

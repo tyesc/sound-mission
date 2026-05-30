@@ -1,6 +1,8 @@
-export const formatKeyId = (str: string): number => {
-  // cc = Control Change, key, velocity
-  const [_, key, __]: Array<string> = JSON.parse(str);
+import { MidiBytes } from '../types';
 
-  return Number(key);
+export const formatKeyId = (bytes: MidiBytes): number => {
+  // cc = Control Change, key, velocity
+  const { cc, note } = bytes;
+
+  return Number(`${cc}${note}`);
 };
