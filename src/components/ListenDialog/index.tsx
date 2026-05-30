@@ -1,6 +1,5 @@
 import { SubmitEvent, useEffect, useReducer } from 'react';
-import { PlusIcon } from '@radix-ui/react-icons';
-import { Dialog, IconButton, Text, Button } from '@radix-ui/themes';
+import { Dialog, Text, Button } from '@radix-ui/themes';
 import { mockState } from '@junipero/react';
 import { listen } from '@tauri-apps/api/event';
 
@@ -12,7 +11,7 @@ import FileButton from '../FileButton';
 export interface ListenDialogProps {
   open: boolean;
   keyIndex: number;
-  keyMap: KeyMap;
+  keyMap?: KeyMap;
   onOpenChange: (open: boolean) => void;
   onSave: (e: SubmitEvent, kmap: KeyMap) => void;
 };
@@ -82,7 +81,7 @@ const ListenDialog = ({
         <form onSubmit={e => onSave(e, state.keyMap)}>
           <Dialog.Title>Setup the key</Dialog.Title>
           <Text as="div" size="2" mb="1" weight="bold">
-            { state.isListening ? 'Press any key' : 'Key found' }
+            { state.isListening ? 'Press any key' : `Key: ${state.keyMap.key}` }
           </Text>
 
           <label>
@@ -90,7 +89,10 @@ const ListenDialog = ({
               Select a sound
             </Text>
 
-            <FileButton onChange={onSoundSelected} />
+            <FileButton
+              value={state.keyMap.sound.path}
+              onChange={onSoundSelected}
+            />
           </label>
 
           <div className="flex gap-3 mt-2 justify-end">

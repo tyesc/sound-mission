@@ -89,7 +89,7 @@ const Home = () => {
 
     const exists = keyMap?.findIndex(e => e.mapIndex === kmap.mapIndex);
 
-    if (!exists) {
+    if (exists == null || exists == undefined) {
       return;
     }
 
@@ -187,6 +187,7 @@ const Home = () => {
         <ListenDialog
           open={state.dialogOpened}
           keyIndex={state.keyIndex}
+          keyMap={keyMap?.[state.keyIndex]}
           onOpenChange={onDialogOpenChange}
           onSave={onSaveKey}
         />
