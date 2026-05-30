@@ -1,6 +1,6 @@
 use tauri::{App, AppHandle, Listener, Manager};
 
-use crate::{state::AppState, utils::play_through_output};
+use crate::{state::AppState};
 
 #[path = "commands/devices.rs"]
 mod devices;
@@ -46,7 +46,9 @@ pub fn setup_listeners(app: &mut App, handle: AppHandle) -> std::result::Result<
     let payload = event.payload();
 
     if let Ok(msg) = serde_json::from_str::<types::MidiBytes>(payload) {
-      let state = _state.lock().unwrap();
+      let mut state = _state.lock().unwrap();
+
+      state.audio_state.players.retain(|player| !player.empty());
 
       println!("cc={}, note={}, velocity={}", msg.cc, msg.note, msg.velocity);
       let key: u32 = format!("{}{}", msg.cc, msg.note).parse().unwrap();
@@ -55,7 +57,12 @@ pub fn setup_listeners(app: &mut App, handle: AppHandle) -> std::result::Result<
 
       match key_match {
         Some(value) => {
-          play_through_output(&value.sound.path).expect("Can't play song");
+          let path = value.sound.path.clone();
+          let file = std::fs::File::open(&path).expect("Can't open sound file");
+          let player = rodio::Player::connect_new(state.audio_state.mixer.mixer());
+
+          player.append(rodio::Decoder::try_from(file).expect("Can't decode sound file"));
+          state.audio_state.players.push(player);
         }
         None => {
           println!("NOPE")
