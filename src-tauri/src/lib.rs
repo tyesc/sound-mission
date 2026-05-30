@@ -1,5 +1,3 @@
-use tauri::{App};
-
 #[path = "commands/devices.rs"]
 mod devices;
 #[path = "commands/midi.rs"]
@@ -11,7 +9,6 @@ mod play;
 #[path = "data/state.rs"]
 mod state;
 
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -19,7 +16,6 @@ pub fn run() {
         .plugin(tauri_plugin_log::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            setup_natif_listeners(app)?;
             state::setup_state(app)?;
 
             Ok(())
@@ -33,15 +29,4 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-fn setup_natif_listeners(app: &mut App) -> std::result::Result<(), Box<dyn std::error::Error>> {
-    let app_handle = app.handle().clone();
-
-    std::thread::spawn(|| match midi::listen_inputs(app_handle) {
-        Ok(_) => (),
-        Err(err) => println!("Error: {}", err),
-    });
-
-    Ok(())
 }

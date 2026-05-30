@@ -1,17 +1,20 @@
 use std::sync::Mutex;
+use midir::MidiInputConnection;
 use serde::{Deserialize, Serialize};
 use tauri::{App, Manager};
 use tauri_plugin_store::StoreExt;
 
 
 #[derive(Default, Serialize, Deserialize, Clone, Debug)]
-struct Settings {
-    is_speaker_mode: bool,
+#[serde(default)]
+pub struct Settings {
+    pub is_speaker_mode: bool,
+    pub midi_device: String,
 }
 
-#[derive(Default, Serialize, Deserialize, Clone, Debug)]
 pub struct AppStateInner {
-    settings: Settings,
+    pub settings: Settings,
+    pub midi_connection:Option<MidiInputConnection<()>>
 }
 
 pub type AppState = Mutex<AppStateInner>;
@@ -34,9 +37,10 @@ pub fn setup_state(app: &mut App) -> std::result::Result<(), Box<dyn std::error:
 
     let state = AppStateInner {
         settings,
+        midi_connection: None,
     };
 
-    app.manage(Mutex::new(state));
+    app.manage(AppState::new(state));
 
     Ok(())
 }

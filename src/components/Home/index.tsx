@@ -9,7 +9,7 @@ import { useApp } from '../../services/hooks';
 
 type Input = {
   name: string;
-  id: string;
+  index: number;
 };
 
 type Output = {
@@ -19,7 +19,7 @@ type Output = {
 
 export interface HomeState {
   devices: Input[];
-  selectedDevice?: string;
+  selectedDevice?: number;
   outputs: Output[];
   selectedOutput?: string;
   dialogOpened: boolean
@@ -68,9 +68,10 @@ const Home = () => {
     dispatch({ keyMap });
   }, [keyMap]);
 
-  const onSelectDevice = async (deviceId: string) => {
-    dispatch({ selectedDevice: deviceId });
-    await invoke('on_device_selected', { id: deviceId });
+  const onSelectDevice = async (deviceIndex: string) => {
+    const index = Number(deviceIndex);
+    dispatch({ selectedDevice: index });
+    await invoke('on_device_selected', { index: index });
   };
 
   const onSelectOutput = async (outputId: string) => {
@@ -125,7 +126,7 @@ const Home = () => {
             <Select.Trigger placeholder="Select device midi" />
             <Select.Content>
               {state.devices.map((d, i) => (
-                <Select.Item key={i} value={d?.id}>
+                <Select.Item key={i} value={d?.index.toString()}>
                   { d?.name }
                 </Select.Item>
               )) }

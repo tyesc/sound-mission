@@ -1,19 +1,26 @@
 use midir::{Ignore, MidiInput};
 use serde::Serialize;
+use tauri::{AppHandle, Manager};
 
+use crate::state::AppState;
+
+#[path = "../data/state.rs"]
+mod state;
 #[path = "../utils.rs"]
 mod utils;
+#[path = "midi.rs"]
+mod midi;
 
 #[derive(Serialize, Clone, Debug)]
 pub struct Input {
-    id: String,
     name: String,
+    index: u32,
 }
 
 impl Input {
-    fn new(id: &str, name: &str) -> Input {
+    fn new(index: u32, name: &str) -> Input {
         Input {
-            id: id.to_string(),
+            index: index,
             name: name.to_string(),
         }
     }
@@ -26,21 +33,30 @@ pub fn list_devices() -> Result<Vec<Input>, String> {
 
     let mut devices: Vec<Input> = Vec::new();
 
-    for (_, p) in midi_in.ports().iter().enumerate() {
+    for (i, p) in midi_in.ports().iter().enumerate() {
         let port_name = match midi_in.port_name(p) {
             Ok(name) => name,
             Err(_) => String::from("No Name"),
         };
 
-        devices.push(Input::new(&p.id(), &port_name));
+        devices.push(Input::new(i as u32, &port_name));
     }
 
     return Ok(devices);
 }
 
 #[tauri::command]
-pub fn on_device_selected(id: &str) {
-    println!("ID Recieved {}", id);
+pub fn on_device_selected(app: AppHandle, index: u32) -> Result<(), String> {
+    let app_state = app.state::<AppState>();
+
+    println!("ID Recieved {}", index);
+
+    let midi_connection = midi::crate_midi_connection(app.clone(), index).map_err(|err| err.to_string())?;
+
+    let mut s = app_state.lock().unwrap();
+    s.midi_connection = Some(midi_connection);
+
+    return Ok(());
 }
 
 #[derive(Serialize, Clone, Debug)]
