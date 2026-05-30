@@ -47,10 +47,19 @@ pub fn setup_state(app: &mut App) -> std::result::Result<(), Box<dyn std::error:
     },
   };
 
+  let keymap = match store.get("keyMap") {
+    Some(value) => {
+      serde_json::from_value::<Vec<KeyMap>>(value.clone())?
+    }
+    None => {
+      Vec::new()
+    }
+  };
+
   let state = AppStateInner {
     settings,
     midi_connection: None,
-    key_map: None,
+    key_map: Some(keymap),
   };
 
   app.manage(AppState::new(state));

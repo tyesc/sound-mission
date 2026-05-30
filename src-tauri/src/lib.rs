@@ -1,6 +1,6 @@
-use tauri::{App, Listener, Manager};
+use tauri::{App, AppHandle, Listener, Manager};
 
-use crate::state::AppState;
+use crate::{state::AppState, utils::play_through_output};
 
 #[path = "commands/devices.rs"]
 mod devices;
@@ -22,8 +22,10 @@ pub fn run() {
     .plugin(tauri_plugin_log::Builder::new().build())
     .plugin(tauri_plugin_opener::init())
     .setup(|app| {
+      let handle = app.handle().clone();
+
       state::setup_state(app)?;
-      setup_listeners(app)?;
+      setup_listeners(app, handle)?;
 
       Ok(())
     })
@@ -38,15 +40,27 @@ pub fn run() {
     .expect("error while running tauri application");
 }
 
-pub fn setup_listeners(app: &mut App) -> std::result::Result<(), Box<dyn std::error::Error>> {
-  let _state = app.state::<AppState>();
-  let state = _state.lock().unwrap();
-
-  app.listen("on_key_pressed", |event| {
+pub fn setup_listeners(app: &mut App, handle: AppHandle) -> std::result::Result<(), Box<dyn std::error::Error>> {
+  app.listen("on_key_pressed", move |event| {
+    let _state = handle.state::<AppState>();
     let payload = event.payload();
 
     if let Ok(msg) = serde_json::from_str::<types::MidiBytes>(payload) {
+      let state = _state.lock().unwrap();
+
       println!("cc={}, note={}, velocity={}", msg.cc, msg.note, msg.velocity);
+      let key: u32 = format!("{}{}", msg.cc, msg.note).parse().unwrap();
+
+      let key_match = state.key_map.as_ref().unwrap().iter().find(|&x| x.key == key);
+
+      match key_match {
+        Some(value) => {
+          play_through_output(&value.sound.path).expect("Can't play song");
+        }
+        None => {
+          println!("NOPE")
+        }
+      }
     }
   });
 
