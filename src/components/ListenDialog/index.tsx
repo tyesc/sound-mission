@@ -6,7 +6,8 @@ import { listen } from '@tauri-apps/api/event';
 
 import { EMPTY_KEYMAP } from '../../services/commons';
 import { KeyMap, MidiBytes } from '../../types';
-import { formatKeyId } from '../../services/utils';
+import { formatKeyId, getFileName } from '../../services/utils';
+import FileButton from '../FileButton';
 
 export interface ListenDialogProps {
   open: boolean;
@@ -55,6 +56,21 @@ const ListenDialog = ({
     };
   }, [state.isListening, keyIndex]);
 
+  const onSoundSelected = (value?: string) => {
+    dispatch(s => {
+      return {
+        ...s,
+        keyMap: {
+          ...s.keyMap,
+          sound: {
+            path: value,
+            name: getFileName(value),
+          },
+        },
+      };
+    });
+  };
+
   return (
     <Dialog.Root
       open={open}
@@ -72,9 +88,7 @@ const ListenDialog = ({
               Select a sound
             </Text>
 
-            <IconButton radius="full" type="button">
-              <PlusIcon />
-            </IconButton>
+            <FileButton onChange={onSoundSelected} />
           </label>
 
           <div className="flex gap-3 mt-2 justify-end">

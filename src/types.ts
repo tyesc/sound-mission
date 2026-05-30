@@ -1,6 +1,6 @@
 export type Sound = {
-  name: string;
-  path: string;
+  name?: string;
+  path?: string;
 };
 
 export type KeyMap = {

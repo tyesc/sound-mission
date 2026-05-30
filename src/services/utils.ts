@@ -6,3 +6,9 @@ export const formatKeyId = (bytes: MidiBytes): number => {
 
   return Number(`${cc}${note}`);
 };
+
+export const getFileName = (s?: string) => {
+  if (!s) return 'No file';
+
+  return s.split(/[\\/]/).pop();
+};
