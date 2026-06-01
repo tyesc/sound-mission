@@ -17,3 +17,4 @@ This template should help get you started developing with Tauri, React and Types
 - [ ] Add confirmation modals (save, clear, etc...)
 - [ ] Copy sound in data folder ?
 - [ ] Can bind potrntiometer or slider to control volume
+- [ ] Listen and update input & output connetions
