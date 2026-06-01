@@ -14,6 +14,8 @@ mod types;
 mod state;
 #[path = "utils.rs"]
 mod utils;
+#[path = "cable.rs"]
+mod cable;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -26,6 +28,7 @@ pub fn run() {
       let handle = app.handle().clone();
 
       state::setup_state(app)?;
+      let _ = cable::setup_virtual_input();
       setup_listeners(app, handle)?;
 
       Ok(())
