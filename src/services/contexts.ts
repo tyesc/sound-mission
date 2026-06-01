@@ -1,11 +1,17 @@
 import { createContext } from 'react';
 
-import { KeyMap } from '../types';
+import { AudioOutput, KeyMap, MidiDevice } from '../types';
 
 export interface AppContextObject {
-  keyMap?: KeyMap[];
-  setKeyMap?: (keyMap?: KeyMap[]) => void;
-  saveKey?: (kmap: KeyMap) => void;
+  keyMap: KeyMap[];
+  midiDevices: MidiDevice[];
+  audioOutputs: AudioOutput[];
+  setKeyMap: (keyMap: KeyMap[]) => void;
 };
 
-export const AppContext = createContext<AppContextObject>({});
+export const AppContext = createContext<AppContextObject>({
+  keyMap: [],
+  midiDevices: [],
+  audioOutputs: [],
+  setKeyMap: () => {},
+});

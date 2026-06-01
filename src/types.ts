@@ -14,3 +14,13 @@ export type MidiBytes = {
   note: number;
   velocity: number;
 };
+
+export type MidiDevice = {
+  name: string;
+  index: number;
+};
+
+export type AudioOutput = {
+  name: string;
+  id: string;
+};

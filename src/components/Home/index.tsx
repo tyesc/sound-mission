@@ -1,65 +1,39 @@
-import { SubmitEvent, useEffect, useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { Select, Button } from '@radix-ui/themes';
+import { Select, Button, IconButton, Text } from '@radix-ui/themes';
+import { TrashIcon } from '@radix-ui/react-icons';
 import { mockState } from '@junipero/react';
 
 import { useApp } from '../../services/hooks';
 import Launchpad from '../Launchpad';
-
-type Input = {
-  name: string;
-  index: number;
-};
-
-type Output = {
-  name: string;
-  id: string;
-};
+import { KeyMap } from '../../types';
+import ConfirmDialog from '../ConfirmDialog';
 
 export interface HomeState {
-  devices: Input[];
+  keyMap: KeyMap[];
+  oldKeyMap: KeyMap[];
   selectedDevice?: number;
-  outputs: Output[];
   selectedOutput?: string;
-  dialogOpened: boolean
-  keyIndex: number;
+  clearDialogOpened: boolean;
+  saveDialogOpened: boolean;
+  dirty: boolean;
 }
 
 const Home = () => {
-  const { keyMap, setKeyMap } = useApp();
+  const { keyMap, setKeyMap, midiDevices, audioOutputs } = useApp();
   const [state, dispatch] = useReducer(mockState<HomeState>, {
-    devices: [],
+    keyMap: keyMap,
+    oldKeyMap: keyMap,
     selectedDevice: undefined,
-    outputs: [],
     selectedOutput: undefined,
-    dialogOpened: false,
-    keyIndex: NaN,
+    clearDialogOpened: false,
+    saveDialogOpened: false,
+    dirty: false,
   });
 
-  const listMidi = async () => {
-    try {
-      const devices = await invoke<Input[]>('list_devices');
-
-      dispatch({ devices });
-    } catch (e) {
-      console.error('TAURI ERROR:', e);
-    }
-  };
-
-  const listOutput = async () => {
-    try {
-      const outputs = await invoke<Output[]>('list_outputs_audio');
-
-      dispatch({ outputs });
-    } catch (e) {
-      console.error('TAURI ERROR:', e);
-    }
-  };
-
   useEffect(() => {
-    listMidi();
-    listOutput();
-  }, []);
+    dispatch({ keyMap, oldKeyMap: keyMap });
+  }, [keyMap]);
 
   const onSelectDevice = async (deviceIndex: string) => {
     const index = Number(deviceIndex);
@@ -71,11 +45,11 @@ const Home = () => {
     dispatch({ selectedOutput: outputId });
   };
 
-  const onSaveConfig = async (e: SubmitEvent) => {
-    e.preventDefault();
-
+  const onSaveConfig = async () => {
     try {
-      await invoke('save_keymap', { kmap: keyMap });
+      await invoke('save_keymap', { kmap: state.keyMap });
+      setKeyMap(state.keyMap);
+      dispatch({ dirty: false, saveDialogOpened: false });
     } catch (e) {
       console.error(e);
     }
@@ -84,36 +58,59 @@ const Home = () => {
   const onClearMap = async () => {
     try {
       await invoke('save_keymap', { kmap: [] });
-      setKeyMap?.([]);
+      setKeyMap([]);
+      dispatch({ dirty: false, clearDialogOpened: false });
     } catch (e) {
       console.error(e);
     }
   };
 
+  const onCancel = () => {
+    dispatch({ keyMap: state.oldKeyMap, dirty: false });
+  };
+
+  const onChange = (kmap: KeyMap) => {
+    const exists = state.keyMap.findIndex((e: KeyMap) => e.id === kmap.id);
+
+    if (exists == null || exists == undefined) {
+      return;
+    }
+
+    const newMap = state.keyMap.toSpliced(exists, exists > -1 ? 1 : 0, kmap);
+    dispatch({ dirty: true, keyMap: newMap });
+  };
+
+  const openClearDialog = () => {
+    dispatch({ clearDialogOpened: true });
+  };
+
+  const openSaveDialog = () => {
+    dispatch({ saveDialogOpened: true });
+  };
+
+  const closeDialogs = () => {
+    dispatch({ clearDialogOpened: false, saveDialogOpened: false });
+  };
+
   return (
     <>
-      <form
-        onSubmit={onSaveConfig}
-        className="flex flex-col gap-1 items-center w-full h-full! p-4"
-      >
+      <div className="flex flex-col gap-1 items-center w-full h-full! p-4">
         <div className="flex gap-1 justify-between w-full h-full!">
-
-          <Select.Root onValueChange={onSelectDevice}>
-            <Select.Trigger placeholder="Select device midi" />
-            <Select.Content>
-              {state.devices.map((d, i) => (
-                <Select.Item key={i} value={d?.index.toString()}>
-                  { d?.name }
-                </Select.Item>
-              )) }
-            </Select.Content>
-          </Select.Root>
-
-          <div>
-            <Select.Root onValueChange={onSelectOutput}>
+          <div className="flex gap-2">
+            <Select.Root onValueChange={onSelectDevice}>
+              <Select.Trigger placeholder="⚠️ Select device midi" />
+              <Select.Content>
+                { midiDevices.map((d, i) => (
+                  <Select.Item key={i} value={d?.index.toString()}>
+                    { d?.name }
+                  </Select.Item>
+                )) }
+              </Select.Content>
+            </Select.Root>
+            <Select.Root onValueChange={onSelectOutput} disabled>
               <Select.Trigger placeholder="Select output audio" />
               <Select.Content>
-                {state.outputs.map((d, i) => (
+                { audioOutputs.map((d, i) => (
                   <Select.Item key={i} value={d?.id}>
                     { d?.name }
                   </Select.Item>
@@ -121,25 +118,69 @@ const Home = () => {
               </Select.Content>
             </Select.Root>
           </div>
+
+          <IconButton
+            onClick={openClearDialog}
+            color="crimson"
+            disabled={keyMap.length === 0}
+          >
+            <TrashIcon />
+          </IconButton>
         </div>
 
-        <Launchpad />
+        <Launchpad
+          onChange={onChange}
+          keyMap={state.keyMap}
+        />
 
         <div
-          className="flex gap-0.5 justify-end w-full align-bottom"
+          className="flex gap-1 justify-end w-full align-bottom"
         >
+          { state.dirty && (
+            <Text size="1" color="gray" className="self-center">
+              { '⚠️ Don\'t forget to save to hear your update' }
+            </Text>
+          ) }
+
           <Button
             variant="soft"
             color="gray"
             type="button"
-            onClick={onClearMap}
+            disabled={!state.dirty}
+            onClick={onCancel}
           >
-            Clear
+            Cancel
           </Button>
 
-          <Button type="submit">Save</Button>
+          <Button
+            type="button"
+            disabled={!state.dirty}
+            onClick={openSaveDialog}
+          >
+            Save
+          </Button>
         </div>
-      </form>
+      </div>
+
+      { state.clearDialogOpened && (
+        <ConfirmDialog
+          open={state.clearDialogOpened}
+          title="Clear the entire keymap ?"
+          desc="Are you sure, you want to erase the keymap ? It's irreversible"
+          onConfirm={onClearMap}
+          onCancel={closeDialogs}
+        />
+      ) }
+
+      { state.saveDialogOpened && (
+        <ConfirmDialog
+          open={state.saveDialogOpened}
+          title="You want to save the current keymap ?"
+          desc="Are you reeeeeeaaaaaaalllllyyyy sure ?"
+          onConfirm={onSaveConfig}
+          onCancel={closeDialogs}
+        />
+      ) }
     </>
   );
 };

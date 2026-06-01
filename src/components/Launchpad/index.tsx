@@ -1,7 +1,6 @@
 import { classNames, mockState } from '@junipero/react';
-import { SubmitEvent, useReducer } from 'react';
+import { useReducer } from 'react';
 
-import { useApp } from '../../services/hooks';
 import ListenDialog from '../ListenDialog';
 import { KeyMap } from '../../types';
 import { padPosToId } from '../../services/utils';
@@ -12,6 +11,8 @@ export type PadPosition = {
 };
 
 export interface LaunchpadProps {
+  keyMap: KeyMap[];
+  onChange: (kmap: KeyMap) => void;
 }
 
 export interface LaunchpadState {
@@ -20,16 +21,15 @@ export interface LaunchpadState {
 }
 
 const Launchpad = ({
-  ...rest
+  keyMap,
+  onChange
 }: LaunchpadProps) => {
-  const { keyMap, saveKey } = useApp();
   const [state, dispatch] = useReducer(mockState<LaunchpadState>, {
     isDialogOpen: false,
     currentPadPos: undefined,
   });
 
   const handlePadClick = (row: number, col: number) => {
-
     dispatch({ currentPadPos: { row, col }, isDialogOpen: true });
   };
 
@@ -37,10 +37,8 @@ const Launchpad = ({
     dispatch({ isDialogOpen: open });
   };
 
-  const onSaveKey = (e: SubmitEvent, kmap: KeyMap) => {
-    e.preventDefault();
-
-    saveKey?.(kmap);
+  const onSaveKey = (kmap: KeyMap) => {
+    onChange(kmap);
     dispatch({ isDialogOpen: false });
   };
 
@@ -59,6 +57,7 @@ const Launchpad = ({
     return colors[col % colors.length];
   };
 
+
   return (
     <div className="p-4">
       <div className="grid grid-cols-8 gap-2">
@@ -72,7 +71,7 @@ const Launchpad = ({
                 onClick={() => handlePadClick(row, col)}
                 className={classNames(
                   'w-12 h-12 sm:w-18 sm:h-18 md:w-20 md:h-20',
-                  `rounded-lg ${getPadColor(row, col)}`,
+                  `rounded-lg ${getPadColor(row, col)} cursor-pointer`,
                   'transition-all duration-75 shadow-lg active:scale-90',
                   'focus:outline-none focus:ring-2 focus:ring-white/50',
                   'flex items-center justify-center p-1',
@@ -83,7 +82,7 @@ const Launchpad = ({
                   'text-center truncate text-white',
                 )}
                 >
-                  {keyMap?.find(e => e.id === padId)?.sound.name}
+                  { keyMap.find(e => e.id === padId)?.sound.name }
                 </span>
               </div>
             );
@@ -94,6 +93,7 @@ const Launchpad = ({
       {state.isDialogOpen && (
         <ListenDialog
           open={state.isDialogOpen}
+          keyMap={keyMap}
           currentPadPos={state.currentPadPos}
           onOpenChange={onOpenDialogChange}
           onSave={onSaveKey}
