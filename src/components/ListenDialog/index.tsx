@@ -5,13 +5,14 @@ import { listen } from '@tauri-apps/api/event';
 
 import { EMPTY_KEYMAP } from '../../services/commons';
 import { KeyMap, MidiBytes } from '../../types';
-import { formatKeyId, getFileName } from '../../services/utils';
+import { formatKeyId, getFileName, padPosToId } from '../../services/utils';
 import FileButton from '../FileButton';
+import { PadPosition } from '../Launchpad';
+import { useApp } from '../../services/hooks';
 
 export interface ListenDialogProps {
   open: boolean;
-  keyIndex: number;
-  keyMap?: KeyMap;
+  currentPadPos?: PadPosition;
   onOpenChange: (open: boolean) => void;
   onSave: (e: SubmitEvent, kmap: KeyMap) => void;
 };
@@ -23,13 +24,14 @@ export interface ListenDialogStates {
 
 const ListenDialog = ({
   open,
-  keyIndex,
-  keyMap,
+  currentPadPos,
   onOpenChange,
   onSave,
 }: ListenDialogProps) => {
+  const { keyMap } = useApp();
   const [state, dispatch] = useReducer(mockState<ListenDialogStates>, {
-    keyMap: keyMap || EMPTY_KEYMAP,
+    keyMap: keyMap?.find(e => e.id === padPosToId(currentPadPos)) ||
+      EMPTY_KEYMAP,
     isListening: true,
   });
 
@@ -44,7 +46,7 @@ const ListenDialog = ({
           ...s,
           keyMap: {
             ...s.keyMap,
-            mapIndex: Number(keyIndex),
+            id: padPosToId(currentPadPos),
             key: formatKeyId(e.payload),
           },
           isListening: false,
@@ -55,7 +57,7 @@ const ListenDialog = ({
     return () => {
       l.then(f => f());
     };
-  }, [state.isListening, keyIndex]);
+  }, [state.isListening, currentPadPos]);
 
   const onSoundSelected = (value?: string) => {
     dispatch(s => {
@@ -78,8 +80,12 @@ const ListenDialog = ({
       onOpenChange={onOpenChange}
     >
       <Dialog.Content maxWidth="450px">
-        <form onSubmit={e => onSave(e, state.keyMap)}>
-          <Dialog.Title>Setup the key</Dialog.Title>
+        <form
+          onSubmit={e => onSave(e, state.keyMap)}
+        >
+          <Dialog.Title>
+            Setup the key pos: {padPosToId(currentPadPos)}
+          </Dialog.Title>
           <Text as="div" size="2" mb="1" weight="bold">
             { state.isListening ? 'Press any key' : `Key: ${state.keyMap.key}` }
           </Text>

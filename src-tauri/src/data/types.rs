@@ -10,7 +10,7 @@ pub struct Sound {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct KeyMap {
-  pub map_index: u32,
+  pub id: String,
   pub key: u32, // {CC}{NOTE}
   pub sound: Sound,
 }

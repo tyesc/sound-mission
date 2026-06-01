@@ -4,7 +4,7 @@ export type Sound = {
 };
 
 export type KeyMap = {
-  mapIndex: number;
+  id: string;
   key: number; // {CC}{NOTE}
   sound: Sound;
 };

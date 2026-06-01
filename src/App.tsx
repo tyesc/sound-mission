@@ -5,7 +5,7 @@ import AppContextProvider from './components/AppContextProvider';
 
 const App = () => {
   return (
-    <Theme hasBackground={false}>
+    <Theme appearance="inherit" hasBackground={false}>
       <AppContextProvider>
         <AppRoutes />
       </AppContextProvider>

@@ -38,12 +38,25 @@ const AppContextProvider = ({ children }: AppContextProps) => {
     dispatch({ keyMap });
   }, []);
 
+  const saveKey = useCallback((kmap: KeyMap) =>{
+    const exists = state.keyMap.findIndex((e: KeyMap) => e.id === kmap.id);
+
+    if (exists == null || exists == undefined) {
+      return;
+    }
+
+    const newMap = state.keyMap.toSpliced(exists, exists > -1 ? 1 : 0, kmap);
+    setKeyMap(newMap);
+  }, [setKeyMap, state.keyMap]);
+
   const getValue = useCallback(() => ({
     keyMap: state.keyMap,
     setKeyMap,
+    saveKey,
   }), [
     state.keyMap,
     setKeyMap,
+    saveKey,
   ]);
 
   return (

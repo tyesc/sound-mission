@@ -3,9 +3,8 @@ import { invoke } from '@tauri-apps/api/core';
 import { Select, Button } from '@radix-ui/themes';
 import { mockState } from '@junipero/react';
 
-import ListenDialog from '../ListenDialog';
-import { KeyMap } from '../../types';
 import { useApp } from '../../services/hooks';
+import Launchpad from '../Launchpad';
 
 type Input = {
   name: string;
@@ -72,33 +71,6 @@ const Home = () => {
     dispatch({ selectedOutput: outputId });
   };
 
-  const onOpenDialog = (index: number) => {
-    dispatch({ dialogOpened: true, keyIndex: index });
-  };
-
-  const onDialogOpenChange = (isOpen: boolean) => {
-    if (isOpen) {
-      return;
-    }
-
-    dispatch({ dialogOpened: false });
-  };
-
-  const onSaveKey = (e: SubmitEvent, kmap: KeyMap) => {
-    e.preventDefault();
-
-    const exists = keyMap?.findIndex(e => e.mapIndex === kmap.mapIndex);
-
-    if (exists == null || exists == undefined) {
-      return;
-    }
-
-    const newMap = keyMap?.toSpliced(exists, exists > -1 ? 1 : 0, kmap);
-    setKeyMap?.(newMap);
-
-    dispatch({ dialogOpened: false });
-  };
-
   const onSaveConfig = async (e: SubmitEvent) => {
     e.preventDefault();
 
@@ -151,21 +123,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div
-          className="flex gap-0.5 justify-center relative w-full h-full mt-3"
-        >
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-sky-500/50 min-w-12 min-h-40"
-              onClick={onOpenDialog.bind(null, i)}
-            >
-              <label>
-                { keyMap?.find(e => e.mapIndex === i)?.key }
-              </label>
-            </div>
-          )) }
-        </div>
+        <Launchpad />
 
         <div
           className="flex gap-0.5 justify-end w-full align-bottom"
@@ -182,16 +140,6 @@ const Home = () => {
           <Button type="submit">Save</Button>
         </div>
       </form>
-
-      {state.dialogOpened && (
-        <ListenDialog
-          open={state.dialogOpened}
-          keyIndex={state.keyIndex}
-          keyMap={keyMap?.[state.keyIndex]}
-          onOpenChange={onDialogOpenChange}
-          onSave={onSaveKey}
-        />
-      ) }
     </>
   );
 };

@@ -1,3 +1,4 @@
+import { PadPosition } from '../components/Launchpad';
 import { MidiBytes } from '../types';
 
 export const formatKeyId = (bytes: MidiBytes): number => {
@@ -12,3 +13,6 @@ export const getFileName = (s?: string) => {
 
   return s.split(/[\\/]/).pop();
 };
+
+export const padPosToId = (pos?: PadPosition): string =>
+  `${pos?.row}:${pos?.col}`;
