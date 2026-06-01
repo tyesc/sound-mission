@@ -8,13 +8,13 @@ This template should help get you started developing with Tauri, React and Types
 
 ## TODO
 - [ ] Warn if a key is already binded
-- [ ] Add some models like Launchpad, keyboard, etc...
+- [x] Add some models like Launchpad, keyboard, etc...
 - [ ] Improve UI/UX
 - [ ] Clean my shitty rust code (errors handling, thread, etc...)
 - [ ] Play sounds on virtual input (Windows, Mac, Linux) (create or use existant virtual cable) ⏳
 - [ ] Redirect microphone stream into this virtual input to use it on Discord or whatever
 - [ ] Add some settings like O/I volume
-- [ ] Add confirmation modals (save, clear, etc...)
+- [x] Add confirmation modals (save, clear, etc...)
 - [ ] Copy sound in data folder ?
-- [ ] Can bind potrntiometer or slider to control volume
+- [ ] Can bind potentiometer or slider to control volume
 - [ ] Listen and update input & output connetions
