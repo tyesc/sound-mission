@@ -45,12 +45,28 @@ const Home = () => {
 
   const onSelectDevice = async (deviceIndex: string) => {
     const index = Number(deviceIndex);
-    dispatch({ selectedDevice: index });
-    await invoke('on_device_selected', { index: index });
+
+    try {
+      await invoke('on_device_selected', { index: index });
+      dispatch({ selectedDevice: index });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const onSelectOutput = async (outputId: string) => {
-    dispatch({ selectedOutput: outputId });
+    try {
+      const output = audioOutputs.find(e => e.id === outputId);
+
+      if (!output) {
+        return;
+      }
+
+      await invoke('on_output_selected', { output });
+      dispatch({ selectedOutput: outputId });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const onSaveConfig = async () => {
@@ -118,7 +134,7 @@ const Home = () => {
                 )) }
               </Select.Content>
             </Select.Root>
-            <Select.Root onValueChange={onSelectOutput} disabled>
+            <Select.Root onValueChange={onSelectOutput}>
               <Select.Trigger placeholder="Select output audio" />
               <Select.Content>
                 { audioOutputs.map((d, i) => (

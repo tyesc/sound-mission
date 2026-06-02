@@ -17,8 +17,8 @@ pub struct KeyMap {
 
 #[derive(Serialize, Clone, Debug)]
 pub struct Input {
-  name: String,
-  index: u32,
+  pub name: String,
+  pub index: u32,
 }
 
 impl Input {
@@ -30,10 +30,10 @@ impl Input {
   }
 }
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Output {
-  id: String,
-  name: String,
+  pub id: String,
+  pub name: String,
 }
 
 impl Output {

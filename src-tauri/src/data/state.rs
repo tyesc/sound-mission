@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 use midir::MidiInputConnection;
-use rodio::{MixerDeviceSink, Player};
+use rodio::{ MixerDeviceSink, Player};
 use serde::{Deserialize, Serialize};
 use tauri::{App, Manager};
 use tauri_plugin_store::StoreExt;

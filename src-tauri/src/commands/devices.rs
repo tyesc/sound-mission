@@ -1,7 +1,13 @@
+use cpal::traits::HostTrait;
 use midir::{Ignore, MidiInput, MidiInputConnection};
+use rodio::DeviceTrait;
 use tauri::{AppHandle, Emitter, Manager};
 
-use crate::{state::AppState, types::{Input, MidiBytes, Output}};
+use crate::{
+  state::AppState,
+  types::{Input, MidiBytes, Output},
+  utils::{is_likely_virtual, output_has_config, output_is_steamable},
+};
 
 #[tauri::command]
 pub fn list_devices() -> Result<Vec<Input>, String> {
@@ -74,32 +80,54 @@ pub fn list_outputs_audio() -> Result<Vec<Output>, String> {
 
   // TODO: need to test and check if those outputs
   // are really usable, i'll use default in the meantime
-  // let host = cpal::default_host();
-  // let devices = host.output_devices().map_err(|e| e.to_string())?;
+  let host = cpal::default_host();
+  let devices = host.output_devices().map_err(|e| e.to_string())?;
 
-  // for device in devices {
-  //     if !utils::output_has_config(&device) {
-  //         continue;
-  //     }
+  for device in devices {
+      if !output_has_config(&device) {
+          continue;
+      }
 
-  //     if !device.default_output_config().is_ok() {
-  //         continue;
-  //     }
+      if !device.default_output_config().is_ok() {
+          continue;
+      }
 
-  //     if !utils::output_is_steamable(&device) {
-  //         continue;
-  //     }
+      if !output_is_steamable(&device) {
+          continue;
+      }
 
-  //     let id = device.id().map_err(|e| e.to_string())?;
-  //     let name = device.description().map_err(|e| e.to_string())?;
+      let id = device.id().unwrap().1;
+      let name = device.description().map_err(|e| e.to_string())?;
 
-  //     if utils::is_likely_virtual(&name.name()) {
-  //         continue;
-  //     }
+      if is_likely_virtual(&name.name()) {
+          continue;
+      }
 
-  //     println!("Output {}", name.name());
-  //     outputs.push(Output::new(&id.to_string(), name.name()));
-  // }
+      outputs.push(Output::new(&id.to_string(), name.name()));
+  }
 
   return Ok(outputs);
+}
+
+#[tauri::command]
+pub fn on_output_selected(app: AppHandle, output: Output) -> Result<(), String> {
+  let app_state = app.state::<AppState>();
+
+  let host = cpal::default_host();
+  let mut devices = host.output_devices().map_err(|e| e.to_string())?;
+
+  let device: rodio::Device = devices.find(move |e| {
+    let eq= e.id().unwrap().1;
+    let id = &output.id;
+
+    eq == *id
+  }).expect("Cannot find the output");
+
+  let builder = rodio::DeviceSinkBuilder::from_device(device).map_err(|e| e.to_string())?;
+  let mixer = builder.open_sink_or_fallback().map_err(|e| e.to_string())?;
+
+  let mut s = app_state.lock().unwrap();
+  s.audio_state.mixer = mixer;
+
+  return Ok(());
 }

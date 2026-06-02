@@ -6,8 +6,6 @@ use crate::{state::AppState};
 mod devices;
 #[path = "commands/config.rs"]
 mod config;
-#[path = "commands/play.rs"]
-mod play;
 #[path = "data/types.rs"]
 mod types;
 #[path = "data/state.rs"]
@@ -31,9 +29,10 @@ pub fn run() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
-      devices::on_device_selected,
       devices::list_devices,
+      devices::on_device_selected,
       devices::list_outputs_audio,
+      devices::on_output_selected,
       config::save_keymap,
       config::get_stored_value,
     ])
