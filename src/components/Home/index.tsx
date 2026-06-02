@@ -20,7 +20,7 @@ export interface HomeState {
 }
 
 const Home = () => {
-  const { keyMap, setKeyMap, midiDevices, audioOutputs } = useApp();
+  const { keyMap, setKeyMap, midiDevices, audioOutputs, listMidi } = useApp();
   const [state, dispatch] = useReducer(mockState<HomeState>, {
     keyMap: keyMap,
     oldKeyMap: keyMap,
@@ -34,6 +34,14 @@ const Home = () => {
   useEffect(() => {
     dispatch({ keyMap, oldKeyMap: keyMap });
   }, [keyMap]);
+
+  const fetchMidiDevices = (open: boolean) => {
+    if (!open) {
+      return;
+    }
+
+    listMidi();
+  };
 
   const onSelectDevice = async (deviceIndex: string) => {
     const index = Number(deviceIndex);
@@ -97,7 +105,10 @@ const Home = () => {
       <div className="flex flex-col gap-1 items-center w-full h-full! p-4">
         <div className="flex gap-1 justify-between w-full h-full!">
           <div className="flex gap-2">
-            <Select.Root onValueChange={onSelectDevice}>
+            <Select.Root
+              onValueChange={onSelectDevice}
+              onOpenChange={fetchMidiDevices}
+            >
               <Select.Trigger placeholder="⚠️ Select device midi" />
               <Select.Content>
                 { midiDevices.map((d, i) => (

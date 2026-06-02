@@ -7,6 +7,7 @@ export interface AppContextObject {
   midiDevices: MidiDevice[];
   audioOutputs: AudioOutput[];
   setKeyMap: (keyMap: KeyMap[]) => void;
+  listMidi: () => void;
 };
 
 export const AppContext = createContext<AppContextObject>({
@@ -14,4 +15,5 @@ export const AppContext = createContext<AppContextObject>({
   midiDevices: [],
   audioOutputs: [],
   setKeyMap: () => {},
+  listMidi: () => {},
 });

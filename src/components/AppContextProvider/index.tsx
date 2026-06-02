@@ -20,7 +20,7 @@ const AppContextProvider = ({ children }: AppContextProps) => {
     audioOutputs: [],
   });
 
-  const listMidi = async () => {
+  const listMidi = useCallback(async () => {
     try {
       const midiDevices = await invoke<MidiDevice[]>('list_devices');
 
@@ -28,7 +28,7 @@ const AppContextProvider = ({ children }: AppContextProps) => {
     } catch (e) {
       console.error('TAURI ERROR:', e);
     }
-  };
+  }, []);
 
   const listOutput = async () => {
     try {
@@ -41,7 +41,6 @@ const AppContextProvider = ({ children }: AppContextProps) => {
   };
 
   useEffect(() => {
-    listMidi();
     listOutput();
   }, []);
 
@@ -72,11 +71,13 @@ const AppContextProvider = ({ children }: AppContextProps) => {
     midiDevices: state.midiDevices,
     audioOutputs: state.audioOutputs,
     setKeyMap,
+    listMidi,
   }), [
     state.keyMap,
     state.midiDevices,
     state.audioOutputs,
     setKeyMap,
+    listMidi,
   ]);
 
   return (
