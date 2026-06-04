@@ -59,10 +59,24 @@ fn crate_midi_connection(app: AppHandle, midi_input: u32) -> Result<MidiInputCon
       in_port,
       "midir-read-input",
       move |_, message, _| {
-        let msg = MidiBytes {
-          cc: message[0],
-          note: message[1],
-          velocity: message[2],
+        println!("{:?}", message);
+
+        let msg = match message.iter().count() {
+            3 => MidiBytes {
+              cc: message[0],
+              note: message[1],
+              velocity: message[2],
+            },
+            2 => MidiBytes {
+              cc: message[0],
+              note: message[1],
+              velocity: 0,
+            },
+            _ => MidiBytes {
+              cc: 0,
+              note: 0,
+              velocity: 0,
+            }
         };
 
         app.emit("on_key_pressed", msg).unwrap();
