@@ -4,7 +4,7 @@ import { mockState } from '@junipero/react';
 import { listen } from '@tauri-apps/api/event';
 
 import { EMPTY_KEYMAP } from '../../services/commons';
-import { KeyMap, MidiBytes } from '../../types';
+import { KeyMap, MidiEvent } from '../../types';
 import { formatKeyId, getFileName, padPosToId } from '../../services/utils';
 import FileButton from '../FileButton';
 import { PadPosition } from '../Launchpad';
@@ -40,7 +40,7 @@ const ListenDialog = ({
       return;
     }
 
-    const l = listen<MidiBytes>('on_key_pressed', e => {
+    const l = listen<MidiEvent>('on_key_pressed', e => {
       dispatch(s => {
         return {
           ...s,

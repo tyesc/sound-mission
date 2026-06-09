@@ -11,7 +11,7 @@ pub struct Sound {
 #[serde(rename_all = "camelCase")]
 pub struct KeyMap {
   pub id: String,
-  pub key: u32, // {CC}{NOTE}
+  pub key: String,
   pub sound: Sound,
 }
 
@@ -45,9 +45,18 @@ impl Output {
   }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct MidiBytes {
-  pub cc: u8,
-  pub note: u8,
-  pub velocity: u8,
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MidiEvent {
+    pub channel: u8,
+    pub kind: MidiKind,
+    pub number: u8,
+    pub value: u8,
+    pub pressed: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum MidiKind {
+    Note,
+    ControlChange,
+    Other,
 }

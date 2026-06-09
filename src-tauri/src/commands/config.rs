@@ -26,7 +26,7 @@ pub fn save_keymap(app: AppHandle, kmap: Vec<KeyMap>) -> Result<(), String> {
 
     KeyMap {
       id: e.id.clone(),
-      key: e.key,
+      key: e.key.clone(),
       sound: Sound {
         name: e.sound.name.clone(),
         path: dest_path.into_os_string().into_string().unwrap(),

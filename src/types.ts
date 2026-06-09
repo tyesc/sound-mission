@@ -5,15 +5,23 @@ export type Sound = {
 
 export type KeyMap = {
   id: string;
-  key: number; // {CC}{NOTE}
+  key: string; // {kind}:{channel}:{number}
   sound: Sound;
 };
 
-export type MidiBytes = {
-  cc: number;
-  note: number;
-  velocity: number;
+export type MidiEvent = {
+  channel: number;
+  kind: MidiKind;
+  number: number;
+  value: number;
+  pressed: boolean;
 };
+
+export enum MidiKind {
+  Note,
+  ControlChange,
+  Other,
+}
 
 export type MidiDevice = {
   name: string;

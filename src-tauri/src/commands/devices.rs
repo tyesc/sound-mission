@@ -5,9 +5,13 @@ use tauri::{AppHandle, Emitter, Manager};
 
 use crate::{
   state::AppState,
-  types::{Input, MidiBytes, Output},
+  types::{Input, MidiEvent, MidiKind, Output},
   utils::{is_likely_virtual, output_has_config, output_is_steamable},
 };
+
+const NOTE_OFF: u8 = 0x80;
+const NOTE_ON: u8 = 0x90;
+const CC: u8 = 0xB0;
 
 #[tauri::command]
 pub fn list_devices() -> Result<Vec<Input>, String> {
@@ -59,27 +63,51 @@ fn crate_midi_connection(app: AppHandle, midi_input: u32) -> Result<MidiInputCon
       in_port,
       "midir-read-input",
       move |_, message, _| {
-        println!("{:?}", message);
+        let status = message[0];
+        let data1 = message.get(1).copied().unwrap_or(0);
+        let data2 = message.get(2).copied().unwrap_or(0);
 
-        let msg = match message.iter().count() {
-            3 => MidiBytes {
-              cc: message[0],
-              note: message[1],
-              velocity: message[2],
-            },
-            2 => MidiBytes {
-              cc: message[0],
-              note: message[1],
-              velocity: 0,
-            },
-            _ => MidiBytes {
-              cc: 0,
-              note: 0,
-              velocity: 0,
+        let msg_type = status & 0xF0;
+        let channel = status & 0x0F;
+
+        let event = match msg_type {
+          NOTE_ON => {
+            let pressed = data2 > 0;
+              MidiEvent {
+                channel,
+                kind: MidiKind::Note,
+                number: data1,
+                value: data2,
+                pressed,
+              }
+            }
+            NOTE_OFF => {
+              MidiEvent {
+                channel,
+                kind: MidiKind::Note,
+                number: data1,
+                value: data2,
+                pressed: false,
+              }
+            }
+            CC => {
+              MidiEvent {
+                channel,
+                kind: MidiKind::ControlChange,
+                number: data1,
+                value: data2,
+                pressed: data2 > 0,
+              }
+            }
+            _ => {
+              return;
             }
         };
 
-        app.emit("on_key_pressed", msg).unwrap();
+        if event.pressed {
+          println!("{:?}", event);
+          app.emit("on_key_pressed", event).unwrap();
+        }
       },
       (),
     )

@@ -59,13 +59,13 @@ pub fn setup_listeners(app: &mut App, handle: AppHandle) -> std::result::Result<
     let _state = handle.state::<AppState>();
     let payload = event.payload();
 
-    if let Ok(msg) = serde_json::from_str::<types::MidiBytes>(payload) {
+    if let Ok(event) = serde_json::from_str::<types::MidiEvent>(payload) {
       let mut state = _state.lock().unwrap();
 
       state.audio_state.players.retain(|player| !player.empty());
 
-      println!("cc={}, note={}, velocity={}", msg.cc, msg.note, msg.velocity);
-      let key: u32 = format!("{}{}", msg.cc, msg.note).parse().unwrap();
+
+      let key: String = format!("{:?}:{}:{}", event.kind, event.channel, event.number).parse().unwrap();
 
       let key_match = state.key_map.as_ref().unwrap().iter().find(|&x| x.key == key);
 
