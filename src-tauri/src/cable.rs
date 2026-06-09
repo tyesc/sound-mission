@@ -8,7 +8,7 @@ pub fn setup_virtual_input() -> io::Result<()> {
         .output()?;
     let modules = String::from_utf8_lossy(&output.stdout);
 
-    if modules.contains("SoundmissionSink") {
+    if modules.contains("SoundmissionMainSink") {
         println!("SoundmissionSink already configured.");
         return Ok(());
     }
@@ -18,7 +18,7 @@ pub fn setup_virtual_input() -> io::Result<()> {
         .args([
             "load-module",
             "module-null-sink",
-            "sink_name=SoundmissionSink",
+            "sink_name=SoundmissionMainSink",
             "sink_properties=device.description=Soundmission Microphone",
         ])
         .status()?;
@@ -33,8 +33,8 @@ pub fn setup_virtual_input() -> io::Result<()> {
         .args([
             "load-module",
             "module-remap-source",
-            "source_name=SoundmissionSink",
-            "master=SoundmissionSink.monitor",
+            "source_name=SoundmissionMicrophoneSink",
+            "master=SoundmissionMainSink.monitor",
             "source_properties=device.description=Soundmission Microphone",
         ])
         .status()?;

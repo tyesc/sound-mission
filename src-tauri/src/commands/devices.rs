@@ -93,7 +93,7 @@ pub fn list_outputs_audio() -> Result<Vec<Output>, String> {
   let mut outputs: Vec<Output> = Vec::new();
 
   // TODO: need to test and check if those outputs
-  // are really usable, i'll use default in the meantime
+  // are really usable
   let host = cpal::default_host();
   let devices = host.output_devices().map_err(|e| e.to_string())?;
 

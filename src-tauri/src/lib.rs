@@ -1,3 +1,5 @@
+use std::{fs, path::Path};
+
 use tauri::{App, AppHandle, Listener, Manager};
 
 use crate::{state::AppState};
@@ -26,7 +28,8 @@ pub fn run() {
       let handle = app.handle().clone();
 
       state::setup_state(app)?;
-      let _ = cable::setup_virtual_input();
+      setup_folders(app)?;
+      // let _ = cable::setup_virtual_input();
       setup_listeners(app, handle)?;
 
       Ok(())
@@ -41,6 +44,14 @@ pub fn run() {
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
+}
+
+fn setup_folders(app: &mut App) -> std::result::Result<(), Box<dyn std::error::Error>> {
+  let data_dir = app.path().app_data_dir();
+  let sounds = Path::new(&data_dir.unwrap()).join("sounds");
+  let _ = fs::create_dir(sounds).ok();
+
+  Ok(())
 }
 
 pub fn setup_listeners(app: &mut App, handle: AppHandle) -> std::result::Result<(), Box<dyn std::error::Error>> {

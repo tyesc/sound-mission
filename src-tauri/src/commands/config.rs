@@ -1,21 +1,45 @@
+use std::{fs, path::Path};
+
 use tauri::{AppHandle, Manager};
 use tauri_plugin_store::StoreExt;
 
-use crate::{state::AppState, types::KeyMap};
+use crate::{state::AppState, types::{KeyMap, Sound}};
 
 #[tauri::command]
 pub fn save_keymap(app: AppHandle, kmap: Vec<KeyMap>) -> Result<(), String> {
   println!("KMAP {:?}", kmap);
 
+  let data_path = app.path().app_data_dir().unwrap();
+  let sounds_path = Path::new(&data_path).join("sounds");
   let state = app.state::<AppState>();
   let mut state = state.lock().unwrap();
   let store = app.store("store.json").map_err(|err| err.to_string())?;
-  let key_map = serde_json::to_value(&kmap).map_err(|err| err.to_string())?;
+
+  let final_kmap: Vec<KeyMap> = kmap.iter().map(|e| {
+    let sound_path = Path::new(&e.sound.path);
+    let dest_path = Path::new(&sounds_path).join(&sound_path.file_name().unwrap());
+
+    let _ = fs::copy(
+      &sound_path,
+      &dest_path
+    ).ok();
+
+    KeyMap {
+      id: e.id.clone(),
+      key: e.key,
+      sound: Sound {
+        name: e.sound.name.clone(),
+        path: dest_path.into_os_string().into_string().unwrap(),
+      }
+    }
+  }).collect();
+
+  let key_map = serde_json::to_value(final_kmap).map_err(|err| err.to_string())?;
 
   store.set("keyMap", key_map);
   store.save().map_err(|err| err.to_string())?;
 
-  state.key_map = Some(kmap);
+  state.key_map = Some(kmap.clone());
 
   store.close_resource();
 

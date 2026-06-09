@@ -18,3 +18,4 @@ This template should help get you started developing with Tauri, React and Types
 - [ ] Copy sound in data folder ?
 - [ ] Can bind potentiometer or slider to control volume
 - [x] Listen and update input & output connetions (udpate on dropdown clicked instead)
+- [ ] Can crop the sound before saving it
