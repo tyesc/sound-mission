@@ -41,6 +41,7 @@ pub fn run() {
       devices::on_output_selected,
       config::save_keymap,
       config::get_stored_value,
+      config::remove_all_keymap,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

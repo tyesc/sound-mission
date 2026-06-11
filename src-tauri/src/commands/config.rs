@@ -1,5 +1,6 @@
 use std::{fs, path::Path};
 
+use serde_json::Value;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_store::StoreExt;
 
@@ -43,7 +44,7 @@ pub fn save_keymap(app: AppHandle, kmap: Vec<KeyMap>) -> Result<(), String> {
 
   store.close_resource();
 
-  return Ok(());
+  Ok(())
 }
 
 #[tauri::command]
@@ -55,5 +56,23 @@ pub fn get_stored_value(app: AppHandle, key: String) -> Result<Vec<KeyMap>, Stri
 
   let res: Vec<KeyMap> = serde_json::from_value(value.clone()).map_err(|err| err.to_string())?;
 
-  return Ok(res);
+  Ok(res)
+}
+
+#[tauri::command]
+pub fn remove_all_keymap(app: AppHandle) -> Result<(), String> {
+  let data_path = app.path().app_data_dir().unwrap();
+  let sounds_path = Path::new(&data_path).join("sounds");
+  let state = app.state::<AppState>();
+  let mut state = state.lock().unwrap();
+  let store = app.store("store.json").map_err(|err| err.to_string())?;
+
+  store.set("keyMap", Value::Array(Vec::new()));
+  store.save().map_err(|err| err.to_string())?;
+
+  state.key_map = Some(Vec::new());
+
+  fs::remove_dir_all(sounds_path).map_err(|err| err.to_string())?;
+
+  Ok(())
 }

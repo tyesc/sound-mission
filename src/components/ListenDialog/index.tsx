@@ -13,6 +13,7 @@ export interface ListenDialogProps {
   open: boolean;
   keyMap: KeyMap[];
   currentPadPos?: PadPosition;
+  onRemove: (kmap: KeyMap) => void;
   onOpenChange: (open: boolean) => void;
   onSave: (kmap: KeyMap) => void;
 };
@@ -26,6 +27,7 @@ const ListenDialog = ({
   open,
   keyMap,
   currentPadPos,
+  onRemove,
   onOpenChange,
   onSave,
 }: ListenDialogProps) => {
@@ -74,6 +76,9 @@ const ListenDialog = ({
     });
   };
 
+  const canRemove = () =>
+    state.keyMap.key.length > 0;
+
   return (
     <Dialog.Root
       open={open}
@@ -99,11 +104,14 @@ const ListenDialog = ({
         </label>
 
         <div className="flex gap-3 mt-2 justify-end">
-          <Dialog.Close>
-            <Button variant="soft" color="gray">
-              Cancel
-            </Button>
-          </Dialog.Close>
+          <Button
+            onClick={() => onRemove(state.keyMap)}
+            variant="soft"
+            color="red"
+            disabled={!canRemove()}
+          >
+            Remove
+          </Button>
 
           <Button type="button" onClick={() => onSave(state.keyMap)}>
             Save

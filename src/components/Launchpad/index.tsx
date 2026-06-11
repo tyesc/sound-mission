@@ -12,7 +12,8 @@ export type PadPosition = {
 
 export interface LaunchpadProps {
   keyMap: KeyMap[];
-  onChange: (kmap: KeyMap) => void;
+  onAddKey: (kmap: KeyMap) => void;
+  onRemoveKey: (kmap: KeyMap) => void;
 }
 
 export interface LaunchpadState {
@@ -22,7 +23,8 @@ export interface LaunchpadState {
 
 const Launchpad = ({
   keyMap,
-  onChange
+  onAddKey,
+  onRemoveKey,
 }: LaunchpadProps) => {
   const [state, dispatch] = useReducer(mockState<LaunchpadState>, {
     isDialogOpen: false,
@@ -38,7 +40,12 @@ const Launchpad = ({
   };
 
   const onSaveKey = (kmap: KeyMap) => {
-    onChange(kmap);
+    onAddKey(kmap);
+    dispatch({ isDialogOpen: false });
+  };
+
+  const _onRemoveKey = (kmap: KeyMap) => {
+    onRemoveKey(kmap);
     dispatch({ isDialogOpen: false });
   };
 
@@ -56,7 +63,6 @@ const Launchpad = ({
 
     return colors[col % colors.length];
   };
-
 
   return (
     <div className="p-4">
@@ -95,6 +101,7 @@ const Launchpad = ({
           open={state.isDialogOpen}
           keyMap={keyMap}
           currentPadPos={state.currentPadPos}
+          onRemove={_onRemoveKey}
           onOpenChange={onOpenDialogChange}
           onSave={onSaveKey}
         />

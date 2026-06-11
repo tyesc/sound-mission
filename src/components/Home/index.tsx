@@ -81,7 +81,7 @@ const Home = () => {
 
   const onClearMap = async () => {
     try {
-      await invoke('save_keymap', { kmap: [] });
+      await invoke('remove_all_keymap');
       setKeyMap([]);
       dispatch({ dirty: false, clearDialogOpened: false });
     } catch (e) {
@@ -93,7 +93,7 @@ const Home = () => {
     dispatch({ keyMap: state.oldKeyMap, dirty: false });
   };
 
-  const onChange = (kmap: KeyMap) => {
+  const onAddKey = (kmap: KeyMap) => {
     const exists = state.keyMap.findIndex((e: KeyMap) => e.id === kmap.id);
 
     if (exists == null || exists == undefined) {
@@ -102,6 +102,20 @@ const Home = () => {
 
     const newMap = state.keyMap.toSpliced(exists, exists > -1 ? 1 : 0, kmap);
     dispatch({ dirty: true, keyMap: newMap });
+  };
+
+  const onRemoveKey = async (kmap: KeyMap) => {
+    const exists = state.keyMap.findIndex((e: KeyMap) => e.id === kmap.id);
+
+    if (exists == null || exists == undefined) {
+      return;
+    }
+
+    const newMap = state.keyMap.toSpliced(exists, exists > -1 ? 1 : 0);
+    dispatch({
+      dirty: newMap.length !== keyMap.length,
+      keyMap: newMap
+    });
   };
 
   const openClearDialog = () => {
@@ -156,7 +170,8 @@ const Home = () => {
         </div>
 
         <Launchpad
-          onChange={onChange}
+          onAddKey={onAddKey}
+          onRemoveKey={onRemoveKey}
           keyMap={state.keyMap}
         />
 
