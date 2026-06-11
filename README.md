@@ -15,7 +15,7 @@ This template should help get you started developing with Tauri, React and Types
 - [ ] Redirect microphone stream into this virtual input to use it on Discord or whatever
 - [ ] Add some settings like O/I volume
 - [x] Add confirmation modals (save, clear, etc...)
-- [ ] Copy sound in data folder ?
+- [x] Copy sound in data folder ?
 - [ ] Can bind potentiometer or slider to control volume
 - [x] Listen and update input & output connetions (udpate on dropdown clicked instead)
 - [ ] Can crop the sound before saving it
