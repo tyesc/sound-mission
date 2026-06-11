@@ -11,7 +11,9 @@ This template should help get you started developing with Tauri, React and Types
 - [x] Add some models like Launchpad, keyboard, etc...
 - [ ] Improve UI/UX
 - [ ] Clean my shitty rust code (errors handling, thread, etc...)
-- [x] Play sounds on virtual input (Windows, Mac, Linux) (create or use existant virtual cable)
+- [ ] Play sounds on virtual input (Windows, Mac, Linux) (create or use existant virtual cable)
+  - [x] Windows: VB-Cable or other, Mac: BalckHole or other (manual install)
+  - [ ] Linux
 - [ ] Redirect microphone stream into this virtual input to use it on Discord or whatever
 - [ ] Add some settings like O/I volume
 - [x] Add confirmation modals (save, clear, etc...)
