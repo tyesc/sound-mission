@@ -1,10 +1,27 @@
-# Tauri + React + Typescript
+<div align="center">
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+# Sound Mission
 
-## Recommended IDE Setup
+</div>
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+## Installation
+
+### Pre-requisites
+
+- Node >= 24 -> https://nodejs.org
+- Cargo >= 1.93 -> https://doc.rust-lang.org/cargo
+
+### Install dependencies
+
+```bash
+yarn install
+```
+
+## Usage
+
+```bash
+yarn tauri dev
+```
 
 ## TODO
 - [ ] Warn if a key is already binded
