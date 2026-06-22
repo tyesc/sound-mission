@@ -114,7 +114,7 @@ const Home = () => {
     const newMap = state.keyMap.toSpliced(exists, exists > -1 ? 1 : 0);
     dispatch({
       dirty: newMap.length !== keyMap.length,
-      keyMap: newMap
+      keyMap: newMap,
     });
   };
 
@@ -132,7 +132,7 @@ const Home = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-1 items-center w-full h-full! p-4">
+      <div className="flex flex-col gap-1 items-center w-full h-full! p-4 font-chakra">
         <div className="flex gap-1 justify-between w-full h-full!">
           <div className="flex gap-2">
             <Select.Root
