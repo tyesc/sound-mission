@@ -2,7 +2,7 @@ import { useEffect, useReducer } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Select, Button, IconButton, Text } from '@radix-ui/themes';
 import { TrashIcon } from '@radix-ui/react-icons';
-import { mockState } from '@junipero/react';
+import { classNames, mockState } from '@junipero/react';
 
 import { useApp } from '../../services/hooks';
 import Launchpad from '../Launchpad';
@@ -132,14 +132,30 @@ const Home = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-1 items-center w-full h-full! p-4 font-chakra">
-        <div className="flex gap-1 justify-between w-full h-full!">
-          <div className="flex gap-2">
+      <div className={classNames(
+        'font-chakra bg-porcelain text-gunmetal flex uppercase'
+      )}
+      >
+        <div className={classNames(
+          'flex flex-col p-8 gap-8 h-screen border-r border-gunmetal'
+        )}
+        >
+          <img
+            className="w-34.5 h-auto"
+            src="src/assets/sm-001.svg"
+            alt="Logo"
+          />
+
+          <div className="flex flex-col gap-4">
+            <p className="font-semibold italic">MIDI Device</p>
             <Select.Root
               onValueChange={onSelectDevice}
               onOpenChange={fetchMidiDevices}
             >
-              <Select.Trigger placeholder="⚠️ Select device midi" />
+              <Select.Trigger
+                className="bg-porcelain! border-gunmetal! border! rounded-none!"
+                placeholder="select A Midi DEVICE"
+              />
               <Select.Content>
                 { midiDevices.map((d, i) => (
                   <Select.Item key={i} value={d?.index.toString()}>
@@ -148,8 +164,15 @@ const Home = () => {
                 )) }
               </Select.Content>
             </Select.Root>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <p className="font-semibold italic">Audio output</p>
             <Select.Root onValueChange={onSelectOutput}>
-              <Select.Trigger placeholder="Select output audio" />
+              <Select.Trigger
+                className="bg-porcelain! border-gunmetal! border! rounded-none!"
+                placeholder="Select output audio"
+              />
               <Select.Content>
                 { audioOutputs.map((d, i) => (
                   <Select.Item key={i} value={d?.id}>
@@ -160,69 +183,31 @@ const Home = () => {
             </Select.Root>
           </div>
 
-          <IconButton
-            onClick={openClearDialog}
-            color="crimson"
-            disabled={keyMap.length === 0}
-          >
-            <TrashIcon />
-          </IconButton>
+          <div className="flex flex-col gap-4">
+            <p className="font-semibold italic">My Soundboard</p>
+            <Button
+              className={classNames(
+                'font-chakra! rounded-none! bg-lipstick-red! text-porcelain!'
+              )}
+              onClick={openClearDialog}
+            >
+              Reset the soundboard
+            </Button>
+          </div>
         </div>
-
-        <Launchpad
-          onAddKey={onAddKey}
-          onRemoveKey={onRemoveKey}
-          keyMap={state.keyMap}
-        />
-
-        <div
-          className="flex gap-1 justify-end w-full align-bottom"
+        <div className={classNames(
+          'flex items-center justify-center h-screen w-full bg-porcelain',
+          'bg-[radial-gradient(#3C3C3C1A_1px,transparent_1px)]',
+          'bg-size-[16px_16px]'
+        )}
         >
-          { state.dirty && (
-            <Text size="1" color="gray" className="self-center">
-              { '⚠️ Don\'t forget to save to hear your update' }
-            </Text>
-          ) }
-
-          <Button
-            variant="soft"
-            color="gray"
-            type="button"
-            disabled={!state.dirty}
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            type="button"
-            disabled={!state.dirty}
-            onClick={openSaveDialog}
-          >
-            Save
-          </Button>
+          <Launchpad
+            onAddKey={onAddKey}
+            onRemoveKey={onRemoveKey}
+            keyMap={state.keyMap}
+          />
         </div>
       </div>
-
-      { state.clearDialogOpened && (
-        <ConfirmDialog
-          open={state.clearDialogOpened}
-          title="Clear the entire keymap ?"
-          desc="Are you sure, you want to erase the keymap ? It's irreversible"
-          onConfirm={onClearMap}
-          onCancel={closeDialogs}
-        />
-      ) }
-
-      { state.saveDialogOpened && (
-        <ConfirmDialog
-          open={state.saveDialogOpened}
-          title="You want to save the current keymap ?"
-          desc="Are you reeeeeeaaaaaaalllllyyyy sure ?"
-          onConfirm={onSaveConfig}
-          onCancel={closeDialogs}
-        />
-      ) }
     </>
   );
 };

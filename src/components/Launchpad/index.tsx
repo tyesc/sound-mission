@@ -65,7 +65,7 @@ const Launchpad = ({
   };
 
   return (
-    <div className="p-4">
+    <div className="p-8 bg-porcelain border border-gunmetal rounded-lg">
       <div className="grid grid-cols-8 gap-2">
         {Array.from({ length: 8 }, (_, row) =>
           Array.from({ length: 8 }, (_, col) => {
@@ -76,11 +76,10 @@ const Launchpad = ({
                 key={padId}
                 onClick={() => handlePadClick(row, col)}
                 className={classNames(
-                  'w-12 h-12 sm:w-18 sm:h-18 md:w-20 md:h-20',
-                  `rounded-lg ${getPadColor(row, col)} cursor-pointer`,
-                  'transition-all duration-75 shadow-lg active:scale-90',
-                  'focus:outline-none focus:ring-2 focus:ring-white/50',
-                  'flex items-center justify-center p-1',
+                  'w-16 h-16 rounded-sm',
+                  'bg-porcelain cursor-pointer border border-gunmetal',
+                  'transition-all duration-75 active:scale-90 flex',
+                  'items-center justify-center p-1',
                 )}
               >
                 <span className={classNames(
