@@ -20,10 +20,10 @@ pub fn save_keymap(app: AppHandle, kmap: Vec<KeyMap>) -> Result<(), String> {
     let sound_path = Path::new(&e.sound.path);
     let dest_path = Path::new(&sounds_path).join(&sound_path.file_name().unwrap());
 
-    let _ = fs::copy(
-      &sound_path,
-      &dest_path
-    ).ok();
+    match fs::copy(&sound_path, &dest_path) {
+        Ok(nb_octets) => println!("{} octets copiés", nb_octets),
+        Err(e) => eprintln!("Erreur : {}", e),
+    }
 
     KeyMap {
       id: e.id.clone(),
@@ -35,12 +35,12 @@ pub fn save_keymap(app: AppHandle, kmap: Vec<KeyMap>) -> Result<(), String> {
     }
   }).collect();
 
-  let key_map = serde_json::to_value(final_kmap).map_err(|err| err.to_string())?;
+  let key_map = serde_json::to_value(&final_kmap).map_err(|err| err.to_string())?;
 
   store.set("keyMap", key_map);
   store.save().map_err(|err| err.to_string())?;
 
-  state.key_map = Some(kmap.clone());
+  state.key_map = Some(final_kmap.clone());
 
   store.close_resource();
 
@@ -72,7 +72,15 @@ pub fn remove_all_keymap(app: AppHandle) -> Result<(), String> {
 
   state.key_map = Some(Vec::new());
 
-  fs::remove_dir_all(sounds_path).map_err(|err| err.to_string())?;
+  for entree in fs::read_dir(sounds_path).map_err(|err| err.to_string())? {
+        let path = entree.map_err(|err| err.to_string())?.path();
+
+        if path.is_dir() {
+            fs::remove_dir_all(path).map_err(|err| err.to_string())?;
+        } else {
+            fs::remove_file(path).map_err(|err| err.to_string())?;
+        }
+    }
 
   Ok(())
 }
